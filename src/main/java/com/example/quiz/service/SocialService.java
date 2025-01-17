@@ -5,7 +5,7 @@ import com.example.quiz.entity.Role;
 import com.example.quiz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 @Service
 public class SocialService {

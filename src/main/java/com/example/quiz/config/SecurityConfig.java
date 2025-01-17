@@ -1,5 +1,6 @@
 package com.example.quiz.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,15 +34,22 @@ public class SecurityConfig {
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/api/auth/**").permitAll()
+            .authorizeHttpRequests()
+                .requestMatchers("/api/auth/**", "/error").permitAll()
                 .requestMatchers("/api/designer/**").hasRole("DESIGNER")
                 .requestMatchers("/api/player/**").hasRole("PLAYER")
                 .anyRequest().authenticated()
-            )
+            .and()
+            .exceptionHandling()
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setContentType("application/json");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"" + authException.getMessage() + "\"}");
+                })
+            .and()
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                            UsernamePasswordAuthenticationFilter.class);
-    
+
         return http.build();
     }
 }

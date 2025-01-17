@@ -147,4 +147,82 @@ public class DesignerService {
         response.setCreatorId(category.getCreator().getId());
         return response;
     }
+
+
+
+    public QuestionResponse getQuestion(Long id) {
+        User currentUser = userService.getCurrentUser();
+        Question question = questionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Question not found"));
+        
+        if (!question.getCreator().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Not authorized to access this question");
+        }
+        
+        return mapToQuestionResponse(question);
+    }
+
+    public void deleteQuestion(Long id) {
+        User currentUser = userService.getCurrentUser();
+        Question question = questionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Question not found"));
+        
+        if (!question.getCreator().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Not authorized to delete this question");
+        }
+        
+        questionRepository.delete(question);
+    }
+
+    public QuestionResponse addRelatedQuestion(Long id, Long relatedId) {
+        User currentUser = userService.getCurrentUser();
+        Question question = questionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Question not found"));
+        Question relatedQuestion = questionRepository.findById(relatedId)
+            .orElseThrow(() -> new RuntimeException("Related question not found"));
+        
+        if (!question.getCreator().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Not authorized to modify this question");
+        }
+        
+        question.getRelatedQuestions().add(relatedQuestion);
+        question = questionRepository.save(question);
+        return mapToQuestionResponse(question);
+    }
+
+    public QuestionResponse removeRelatedQuestion(Long id, Long relatedId) {
+        User currentUser = userService.getCurrentUser();
+        Question question = questionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Question not found"));
+        Question relatedQuestion = questionRepository.findById(relatedId)
+            .orElseThrow(() -> new RuntimeException("Related question not found"));
+        
+        if (!question.getCreator().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Not authorized to modify this question");
+        }
+        
+        question.getRelatedQuestions().remove(relatedQuestion);
+        question = questionRepository.save(question);
+        return mapToQuestionResponse(question);
+    }
+
+    public CategoryResponse updateCategory(Long id, CategoryRequest request) {
+        User currentUser = userService.getCurrentUser();
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        if (!category.getCreator().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Not authorized to update this category");
+        }
+        
+        category.setName(request.getName());
+        category = categoryRepository.save(category);
+        return mapToCategoryResponse(category);
+    }
+
+
+
+
+
+
 }

@@ -1,14 +1,28 @@
 package com.example.quiz.service;
 
-import com.example.quiz.dto.request.AnswerRequest;
-import com.example.quiz.dto.response.*;
-import com.example.quiz.entity.*;
-import com.example.quiz.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.quiz.dto.request.AnswerRequest;
+import com.example.quiz.dto.response.AnswerResponse;
+import com.example.quiz.dto.response.CategoryResponse;
+import com.example.quiz.dto.response.LeaderboardResponse;
+import com.example.quiz.dto.response.QuestionResponse;
+import com.example.quiz.entity.AnsweredQuestion;
+import com.example.quiz.entity.Category;
+import com.example.quiz.entity.Question;
+import com.example.quiz.entity.Role;
+import com.example.quiz.entity.User;
+import com.example.quiz.repository.AnsweredQuestionRepository;
+import com.example.quiz.repository.CategoryRepository;
+import com.example.quiz.repository.QuestionRepository;
+import com.example.quiz.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
 
 @Service

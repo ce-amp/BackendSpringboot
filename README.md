@@ -1,14 +1,91 @@
-````markdown:README.md
 # Quiz Application Backend
 
 ## Prerequisites
+
 - Java JDK 17 or later
 - Maven 3.6+
-- MySQL 8.0+
+- Docker
+- Docker Compose
+
+## Docker Setup
+
+### 1. Build and Run with Docker Compose
+
+The application is containerized using Docker with two services:
+
+- MySQL database
+- Spring Boot backend
+
+To start the application using Docker:
+
+```bash
+# Build and start all services
+docker compose up --build
+
+# Run in detached mode (background)
+docker compose up -d
+
+# Scale backend service (optional)
+docker compose up -d --scale backend=3
+```
+
+### 2. Docker Services Configuration
+
+#### MySQL Container
+
+- Port: 3307 (host) -> 3306 (container)
+- Database: quiz_db
+- Username: quizuser
+- Password: 123mamad
+- Persistent volume: mysql-data
+
+#### Backend Container
+
+- Port: 8000
+- Built from source using multi-stage Dockerfile
+- Automatically connects to MySQL container
+- Scalable using Docker Compose
+
+### 3. Container Management
+
+```bash
+# Stop all containers
+docker compose down
+
+# View running containers
+docker ps
+
+# View container logs
+docker compose logs backend
+docker compose logs mysql
+
+# Access MySQL container
+docker exec -it quiz-mysql mysql -u quizuser -p123mamad
+
+# Remove all containers and volumes
+docker compose down -v
+```
+
+### 4. Environment Variables
+
+The application uses environment variables for configuration. Default values are provided but can be overridden:
+
+```bash
+SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/quiz_db
+SPRING_DATASOURCE_USERNAME=quizuser
+SPRING_DATASOURCE_PASSWORD=123mamad
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_SHOW_SQL=true
+```
+
+### 5. Docker Network
+
+Services communicate through a dedicated network 'quiz-network' created by Docker Compose.
 
 ## Database Setup
 
 ### 1. Install MySQL
+
 ```bash
 # MacOS (using Homebrew)
 brew install mysql
@@ -22,7 +99,7 @@ sudo apt install mysql-server
 
 # Start MySQL Service on Ubuntu
 sudo systemctl start mysql
-````
+```
 
 ### 2. Configure Database
 
@@ -85,16 +162,75 @@ The application will start on `http://localhost:8000`
 
 ## Verification Steps
 
-1. Check if the application is running:
+1. Check if containers are running:
+
+```bash
+docker ps
+```
+
+2. Check application health:
 
 ```bash
 curl http://localhost:8000/actuator/health
 ```
 
-2. Test database connection:
+3. Test database connection:
 
 ```bash
-mysql -u quizuser -p123mamad
+docker exec -it quiz-mysql mysql -u quizuser -p123mamad -e "SHOW DATABASES;"
+```
+
+## Troubleshooting Docker Issues
+
+### Container Issues
+
+1. Check container logs:
+
+```bash
+docker compose logs backend
+docker compose logs mysql
+```
+
+2. Restart containers:
+
+```bash
+docker compose restart
+```
+
+3. Reset everything:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+### Database Issues
+
+1. Check MySQL container status:
+
+```bash
+docker exec quiz-mysql mysqladmin -u quizuser -p123mamad ping
+```
+
+2. Access MySQL container:
+
+```bash
+docker exec -it quiz-mysql bash
+```
+
+### Network Issues
+
+1. Inspect network:
+
+```bash
+docker network ls
+docker network inspect quiz-network
+```
+
+2. Check container connectivity:
+
+```bash
+docker exec quiz-backend ping mysql
 ```
 
 ## Troubleshooting
